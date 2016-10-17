@@ -38,7 +38,7 @@
     <Content Include="README.md" />
     <TypeScriptCompile Include="index.ts" />
     <TypeScriptCompile Include="Scripts\typings\node\node.d.ts" />
-    <TypeScriptCompile Include="src\schema.ts" />
+    <TypeScriptCompile Include="src\grammar.ts" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\" />
