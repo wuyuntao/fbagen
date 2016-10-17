@@ -1,0 +1,27 @@
+{
+  "name": "fbagen",
+  "version": "0.0.1",
+  "description": "Generate class-based C# accessor code from FlatBuffer schema",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wuyuntao/fbagen.git"
+  },
+  "keywords": [
+    "FlatBuffer",
+    "CSharp"
+  ],
+  "author": "Wu Yuntao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wuyuntao/fbagen/issues"
+  },
+  "homepage": "https://github.com/wuyuntao/fbagen#readme",
+  "dependencies": {
+    "jison": "^0.4.17",
+    "meow": "^3.7.0"
+  }
+}
