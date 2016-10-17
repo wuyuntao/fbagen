@@ -1,5 +1,7 @@
 ﻿const meow = require("meow");
+const parser = require("./src/schema");
 
+// TODO: Replace meow with commander: https://github.com/tj/commander.js
 const cli = meow(`
   Usage
     $ fbagen <files>
