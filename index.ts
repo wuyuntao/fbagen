@@ -1,5 +1,6 @@
 ﻿const meow = require("meow");
-const parser = require("./src/schema").parser;
+const parser = require("./src/grammar").parser;
+const fs = require("fs");
 
 // TODO: Replace meow with commander: https://github.com/tj/commander.js
 const cli = meow(`
@@ -22,10 +23,14 @@ const cli = meow(`
     });
 
 if (cli.input.length > 0) {
-    console.log("files");
-    console.log(cli.input);
-    console.log("flags");
-    console.log(cli.flags);
+    for (let filePath of cli.input) {
+        console.log(`Read file from '${filePath}'`);
+        let file = fs.readFileSync(filePath);
+
+        console.log("Parse ast");
+        let ast = parser.parse(file);
+        console.log(ast);
+    }
 }
 else {
     console.info(cli.help);
