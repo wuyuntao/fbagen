@@ -33,8 +33,6 @@ namespace MyGame.Schema
 
         public Color Color { get; set; }
 
-        public Any Test { get; set; }
-
     }
 
     public class MutableWeapon

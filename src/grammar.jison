@@ -81,7 +81,7 @@ attribute_decl
     ;
 
 enum_decl
-    : ENUM SYMBOL ':' TYPE '{' enum_field_list '}'              { $$ = { type: 'enum_decl', args: [$2, $4, $6] }; }
+    : ENUM SYMBOL ':' TYPE '{' enum_field_list '}'              { $$ = { type: 'enum_decl', name: $2, enumType: $4, fields: $6 }; }
     ;
 
 enum_field_list

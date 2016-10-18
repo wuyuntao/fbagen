@@ -1,6 +1,6 @@
 ﻿export namespace Grammar {
 
-    export function parse(filePath: String) {
+    export function parse(filePath: string) {
         const fs = require("fs");
         const jison = require("jison");
         const path = require("path");
