@@ -18,7 +18,7 @@ root_type                                                       return 'ROOT_TYP
 file_identifier                                                 return 'FILE_ID'
 file_extension                                                  return 'FILE_EXT'
 
-(byte|ubyte|bool|short|ushort|int|uint|float|long|ulong|double) return 'TYPE'
+(byte|ubyte|bool|short|ushort|int|uint|float|long|ulong|double|string)      return 'TYPE'
 [a-zA-Z_][a-zA-Z0-9_]*                                          return 'SYMBOL'
 [\+\-]?[0-9]+                                                   return 'INT'
 [\+\-]?[0-9]+\.[0-9]+                                           return 'FLOAT'
@@ -106,39 +106,39 @@ union_name_list
     ;
 
 struct_decl
-    : STRUCT SYMBOL '{' struct_field_list '}'                   { $$ = { type: 'struct_decl', args: [$2, $4] }; }
+    : STRUCT SYMBOL '{' struct_field_list '}'                   { $$ = { type: 'struct_decl', name: $2, fields: $4.fields }; }
     ;
 
 struct_field_list
-    : struct_field_list struct_field                            { $$ = { type: 'struct_field_list', args: $1.args.concat($2) }; }
-    | struct_field                                              { $$ = { type: 'struct_field_list', args: [$1] }; }
+    : struct_field_list struct_field                            { $$ = { type: 'struct_field_list', fields: $1.fields.concat($2) }; }
+    | struct_field                                              { $$ = { type: 'struct_field_list', fields: [$1] }; }
     ;
 
 struct_field
-    : SYMBOL ':' field_type ';'                                 { $$ = { type: 'struct_field', args: [$1, $3] }; }
-    | SYMBOL ':' field_type attribute_list_decl ';'             { $$ = { type: 'struct_field', args: [$1, $3, $4] }; }
+    : SYMBOL ':' field_type ';'                                 { $$ = { type: 'struct_field', name: $1, fieldType: $3 }; }
+    | SYMBOL ':' field_type attribute_list_decl ';'             { $$ = { type: 'struct_field', name: $1, fieldType: $3, attributes: $4 }; }
     ;
 
 table_decl
-    : TABLE SYMBOL '{' table_field_list '}'                     { $$ = { type: 'table_decl', args: [$2, $4] }; }
+    : TABLE SYMBOL '{' table_field_list '}'                     { $$ = { type: 'table_decl', name: $2, fields: $4.fields }; }
     ;
 
 table_field_list
-    : table_field_list table_field                              { $$ = { type: 'table_field_list', args: $1.args.concat($2) }; }
-    | table_field                                               { $$ = { type: 'table_field_list', args: [$1] }; }
+    : table_field_list table_field                              { $$ = { type: 'table_field_list', fields: $1.fields.concat($2) }; }
+    | table_field                                               { $$ = { type: 'table_field_list', fields: [$1] }; }
     ;
 
 table_field
-    : SYMBOL ':' field_type ';'                                     { $$ = { type: 'table_field', args: [$1, $3] }; }
-    | SYMBOL ':' field_type '=' variable ';'                        { $$ = { type: 'table_field', args: [$1, $3, $5] }; }
-    | SYMBOL ':' field_type attribute_list_decl ';'                 { $$ = { type: 'table_field', args: [$1, $3, null, $4] }; }
-    | SYMBOL ':' field_type '=' variable attribute_list_decl ';'    { $$ = { type: 'table_field', args: [$1, $3, $5, $6] }; }
+    : SYMBOL ':' field_type ';'                                     { $$ = { type: 'table_field', name: $1, fieldType: $3 }; }
+    | SYMBOL ':' field_type '=' variable ';'                        { $$ = { type: 'table_field', name: $1, fieldType: $3, defaultValue: $5 }; }
+    | SYMBOL ':' field_type attribute_list_decl ';'                 { $$ = { type: 'table_field', name: $1, fieldType: $3, attributes: $4 }; }
+    | SYMBOL ':' field_type '=' variable attribute_list_decl ';'    { $$ = { type: 'table_field', name: $1, fieldType: $3, defaultValue: $5, attributes: $6 }; }
     ;
 
 field_type
-    : SYMBOL                                                    { $$ = { type: 'field_type', args: [$1] }; }
-    | TYPE                                                      { $$ = { type: 'field_type', args: [$1] }; }
-    | '[' field_type ']'                                        { $$ = { type: 'field_type_array', args: [$1] }; }
+    : SYMBOL                                                    { $$ = { type: 'field_type', name: $1 }; }
+    | TYPE                                                      { $$ = { type: 'field_type', name: $1, isScalar: true }; }
+    | '[' field_type ']'                                        { $$ = { type: 'field_type', name: $2.name, isScalar: $2.isScalar, isArray: true }; }
     ;
 
 attribute_list_decl

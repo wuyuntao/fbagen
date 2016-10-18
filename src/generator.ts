@@ -1,5 +1,7 @@
 ﻿export namespace Generators {
 
+    const upperCamelCase = require('uppercamelcase');
+
     class GeneratorError extends Error {
     }
 
@@ -16,11 +18,30 @@
         namespace: String;
     }
 
+    interface TypeStatement extends Statement {
+        name: String
+        fields: FieldStatement[];
+    }
+
+    interface FieldStatement extends Statement {
+        name: String;
+        fieldType: FieldTypeStatement;
+    }
+
+    interface FieldTypeStatement extends Statement {
+        name: String;
+        isScalar: boolean;
+        isArray: boolean;
+    }
+
     export abstract class Generator {
         static STATEMENT_LIST = "statement_list";
-        static NAMESPACE = "namespace_decl";
+        static NAMESPACE_DECL = "namespace_decl";
+        static STRUCT_DECL = "struct_decl";
+        static TABLE_DECL = "table_decl";
 
         protected namespace: String;
+        protected types: TypeStatement[];
 
         constructor(schema: StatementList) {
             if (schema.type != Generator.STATEMENT_LIST)
@@ -30,11 +51,12 @@
                 throw new GeneratorError(`Missing statements in '${Generator.STATEMENT_LIST}'`);
 
             this.findNamespace(schema);
+            this.findTypes(schema);
         }
 
         private findNamespace(schema: StatementList) {
             for (let statement of schema.statements) {
-                if (statement.type == Generator.NAMESPACE) {
+                if (statement.type == Generator.NAMESPACE_DECL) {
                     let nss = <NamespaceStatement>statement;
                     if (this.namespace == null) {
                         this.namespace = nss.namespace;
@@ -44,6 +66,20 @@
                         throw new GeneratorError(`Duplicate namespace`);
                 }
             }
+        }
+
+        private findTypes(schema: StatementList) {
+            this.types = [];
+
+            for (let statement of schema.statements) {
+                if (statement.type == Generator.STRUCT_DECL || statement.type == Generator.TABLE_DECL) {
+                    this.types.push(<TypeStatement>statement);
+                }
+            }
+        }
+
+        protected isType(typeName: String): boolean {
+            return this.types.findIndex(t => t.name == typeName) >= 0;
         }
 
         public abstract generate(): String;
@@ -61,7 +97,13 @@
 `;
 
             code += this.beginNamespace();
+
+            for (let type of this.types) {
+                code += this.addType(type);
+            }
+
             code += this.endNamespace();
+
             return code;
         }
 
@@ -75,6 +117,67 @@ namespace ${this.namespace}
         endNamespace(): String {
             return `
 }`
+        }
+
+        addType(type: TypeStatement): String {
+            console.log(JSON.stringify(type));
+
+            let isStruct = type.type == Generator.STRUCT_DECL;
+            let code = ``;
+
+            code += this.beginType(type.name, isStruct, true);
+
+            for (let field of type.fields) {
+                code += this.addTypeField(field, isStruct, true);
+            }
+
+            code += this.endType();
+
+            return code;
+        }
+
+        beginType(typeName: String, isStruct: boolean, isMutable: boolean): String {
+            return `
+    public ${isStruct ? 'struct' : 'class'} ${isMutable ? 'Mutable' : 'Immutable'}${typeName}
+    {
+`;
+        }
+
+        endType(): String {
+            return `
+    }
+`;
+        }
+
+        addTypeField(field: FieldStatement, isStruct: boolean, isMutable: boolean): String {
+            let fieldType = <FieldTypeStatement>field.fieldType;
+            let fieldTypeName = fieldType.name;
+            if (fieldType.isScalar) {
+                // C# conversion: ubyte -> byte, byte -> sbyte
+                if (fieldTypeName == "ubyte")
+                    fieldTypeName = "byte";
+                else if (fieldTypeName == "byte")
+                    fieldTypeName = "sbyte";
+            } else if (this.isType(fieldType.name)) {
+                fieldTypeName = `${isMutable ? 'Mutable' : 'Immutable'}${fieldType.name}`;
+            }
+            else {
+                console.warn(`Not implemented yet ${JSON.stringify(fieldTypeName)}`);
+            }
+
+            if (fieldType.isArray)
+                fieldTypeName += '[]';
+
+            let code = `
+        public ${fieldTypeName} ${upperCamelCase(field.name)}`;
+            if (isStruct)
+                code += `;
+`;
+            else
+                code += ` { get; set; }
+`;
+
+            return code;
         }
 
         public ext(): String {

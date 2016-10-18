@@ -22,6 +22,7 @@
   "homepage": "https://github.com/wuyuntao/fbagen#readme",
   "dependencies": {
     "jison": "^0.4.17",
-    "meow": "^3.7.0"
+    "meow": "^3.7.0",
+    "uppercamelcase": "^1.1.0"
   }
 }
