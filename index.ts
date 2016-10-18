@@ -25,11 +25,11 @@ const cli = meow(`
 if (cli.input.length > 0) {
     for (let filePath of cli.input) {
         console.log(`Read file from '${filePath}'`);
-        let file = fs.readFileSync(filePath);
+        let file = fs.readFileSync(filePath, "utf8");
 
         console.log("Parse ast");
         let ast = parser.parse(file);
-        console.log(ast);
+        console.log(JSON.stringify(ast));
     }
 }
 else {

@@ -36,6 +36,7 @@
   <ItemGroup>
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <Content Include="src\grammar.jison" />
     <Content Include="test\example.fbs" />
     <TypeScriptCompile Include="index.ts" />
     <TypeScriptCompile Include="src\typings\node\node.d.ts" />
