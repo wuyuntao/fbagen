@@ -23,16 +23,12 @@ namespace MyGame.Schema
 
         public override Offset<Vec3> Serialize(FlatBufferBuilder fbb, MutableVec3 obj)
         {
-            Vec3.StartVec3(fbb);
-            Vec3.AddX(fbb, obj.X);
-            Vec3.AddY(fbb, obj.Y);
-            Vec3.AddZ(fbb, obj.Z);
-            return Vec3.EndVec3(fbb);
+            return Vec3.CreateVec3(fbb, obj.X, obj.Y, obj.Z);
         }
 
         protected override Vec3 GetRootAs(ByteBuffer buffer)
         {
-            return Vec3.GetRootAsVec3(buffer);
+            throw new NotImplementedException();
         }
 
         public override MutableVec3 Deserialize(Vec3 obj)
@@ -76,9 +72,10 @@ namespace MyGame.Schema
             Monster.AddMana(fbb, obj.Mana);
             Monster.AddHp(fbb, obj.Hp);
             if (!string.IsNullOrEmpty(obj.Name))
-                 Monster.AddName(fbb, fbb.CreateString(obj.Name));
+                     Monster.AddName(fbb, fbb.CreateString(obj.Name));
             Monster.AddColor(fbb, obj.Color);
             return Monster.EndMonster(fbb);
+
         }
 
         protected override Monster GetRootAs(ByteBuffer buffer)
@@ -117,6 +114,7 @@ namespace MyGame.Schema
             Weapon.StartWeapon(fbb);
             Weapon.AddId(fbb, obj.Id);
             return Weapon.EndWeapon(fbb);
+
         }
 
         protected override Weapon GetRootAs(ByteBuffer buffer)
@@ -149,6 +147,7 @@ namespace MyGame.Schema
             Pickup.StartPickup(fbb);
             Pickup.AddId(fbb, obj.Id);
             return Pickup.EndPickup(fbb);
+
         }
 
         protected override Pickup GetRootAs(ByteBuffer buffer)

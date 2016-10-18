@@ -152,7 +152,7 @@ namespace ${this.namespace}
         addType(type: TypeStatement): string {
             console.log(JSON.stringify(type));
 
-            let isStruct = type.type == Generator.STRUCT_DECL;
+            let isStruct = this.isStruct(type);
             let code = ``;
 
             code += this.beginType(type.name, isStruct, true);
@@ -243,32 +243,45 @@ namespace ${this.namespace}
         public override Offset<${type.name}> Serialize(FlatBufferBuilder fbb, ${accessorName} obj)
         {
 `;
-
-            code += `            ${type.name}.Start${type.name}(fbb);
+            if (this.isStruct(type))
+            {
+                code += `            return ${type.name}.Create${type.name}(fbb`;
+                for(let field of type.fields) {
+                    let fieldName = upperCamelCase(field.name);
+                    code += `, obj.${fieldName}`;
+                }
+                code += `);`;
+            } else {
+                code += `            ${type.name}.Start${type.name}(fbb);
 `;
 
-            for(let field of type.fields) {
-                if(this.isDeprecatedField(field))
-                    continue;
+                for(let field of type.fields) {
+                    if(this.isDeprecatedField(field))
+                        continue;
 
-                let fieldName = upperCamelCase(field.name);
+                    let fieldName = upperCamelCase(field.name);
 
-                if(field.fieldType.isArray) {
-                } else {
-                    if (field.fieldType.name == "string") {
-                        code += `            if (!string.IsNullOrEmpty(obj.${fieldName}))
-                 ${type.name}.Add${fieldName}(fbb, fbb.CreateString(obj.${fieldName}));
+                    if(field.fieldType.isArray) {
+                    } else {
+                        if (field.fieldType.name == "string") {
+                            code += `            if (!string.IsNullOrEmpty(obj.${fieldName}))
+                     ${type.name}.Add${fieldName}(fbb, fbb.CreateString(obj.${fieldName}));
 `;
                     } else if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
                         code += `            ${type.name}.Add${fieldName}(fbb, obj.${fieldName});
 `;
+                        }
                     }
                 }
+
+                code += `            return ${type.name}.End${type.name}(fbb);
+`;
             }
 
-            code += `            return ${type.name}.End${type.name}(fbb);
+            code += `
         }
 `;
+
             return code;
         }
 
@@ -279,7 +292,10 @@ namespace ${this.namespace}
         {
 `;
 
-            code += `            return ${type.name}.GetRootAs${type.name}(buffer);`;
+            if (this.isStruct(type))
+                code += `            throw new NotImplementedException();`;
+            else
+                code += `            return ${type.name}.GetRootAs${type.name}(buffer);`;
 
             code += `
         }
@@ -347,6 +363,10 @@ namespace ${this.namespace}
 
         isDeprecatedField(field: FieldStatement): boolean {
             return field.attributes != null && field.attributes.findIndex(a => a.name == "deprecated") >= 0;
+        }
+
+        isStruct(type: TypeStatement): boolean {
+            return type.type == Generator.STRUCT_DECL;
         }
 
         public ext(): string {
