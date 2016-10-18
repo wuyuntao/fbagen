@@ -131,8 +131,8 @@ table_field_list
 table_field
     : SYMBOL ':' field_type ';'                                     { $$ = { type: 'table_field', name: $1, fieldType: $3 }; }
     | SYMBOL ':' field_type '=' variable ';'                        { $$ = { type: 'table_field', name: $1, fieldType: $3, defaultValue: $5 }; }
-    | SYMBOL ':' field_type attribute_list_decl ';'                 { $$ = { type: 'table_field', name: $1, fieldType: $3, attributes: $4 }; }
-    | SYMBOL ':' field_type '=' variable attribute_list_decl ';'    { $$ = { type: 'table_field', name: $1, fieldType: $3, defaultValue: $5, attributes: $6 }; }
+    | SYMBOL ':' field_type attribute_list_decl ';'                 { $$ = { type: 'table_field', name: $1, fieldType: $3, attributes: $4.attributes }; }
+    | SYMBOL ':' field_type '=' variable attribute_list_decl ';'    { $$ = { type: 'table_field', name: $1, fieldType: $3, defaultValue: $5, attributes: $6.attributes }; }
     ;
 
 field_type
@@ -146,13 +146,13 @@ attribute_list_decl
     ;
 
 attribute_list
-    : attribute_list ',' attribute_decl                         { $$ = { type: 'attribute_list', args: $1.args.concat($3) }; }
-    | attribute_decl                                            { $$ = { type: 'attribute_list', args: [$1] }; }
+    : attribute_list ',' attribute_decl                         { $$ = { type: 'attribute_list', attributes: $1.attributes.concat($3) }; }
+    | attribute_decl                                            { $$ = { type: 'attribute_list', attributes: [$1] }; }
     ;
 
 attribute_decl
-    : SYMBOL ':' variable                                       { $$ = { type: 'attribute_decl', args: [$1, $3] }; }
-    | SYMBOL                                                    { $$ = { type: 'attribute_decl', args: [$1] }; }
+    : SYMBOL ':' variable                                       { $$ = { type: 'attribute_decl', name: $1, value: $3 }; }
+    | SYMBOL                                                    { $$ = { type: 'attribute_decl', name: $1 }; }
     ;
 
 variable
