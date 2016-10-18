@@ -5,7 +5,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>fbagen</Name>
     <RootNamespace>fbagen</RootNamespace>
-    <ScriptArguments>-o examples\FbagenDemo -n test\example.fbs</ScriptArguments>
+    <ScriptArguments>-o examples\FbagenDemo -n examples\FbagenDemo\Schema.fbs</ScriptArguments>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -48,7 +48,6 @@
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Content Include="src\grammar.jison" />
-    <Content Include="test\example.fbs" />
     <TypeScriptCompile Include="index.ts" />
     <TypeScriptCompile Include="src\generator.ts" />
     <TypeScriptCompile Include="src\typings\node\node.d.ts" />

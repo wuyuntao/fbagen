@@ -15,6 +15,7 @@ struct Vec3 {
 }
 
 table Monster {
+  id:uint;
   pos:Vec3;
   mana:short = 150;
   hp:short = 100;
@@ -23,6 +24,14 @@ table Monster {
   inventory:[ubyte];
   color:Color = Blue;
   test:Any;
+}
+
+table Weapon {
+  id:uint;
+}
+
+table Pickup {
+  id:uint;
 }
 
 root_type Monster;

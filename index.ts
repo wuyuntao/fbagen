@@ -39,7 +39,7 @@ function main() {
                 throw new Error("No generator is specified");
 
             for (let gen of gens) {
-                let codeFileName = path.basename(filePath, ".fbs") + gen.ext();
+                let codeFileName = `${path.basename(filePath, ".fbs")}Accessors${gen.ext()}`;
                 console.log("filename: " + codeFileName);
                 let codeFilePath = path.join(cli.flags.outputPath, codeFileName);
                 let code = gen.generate();
