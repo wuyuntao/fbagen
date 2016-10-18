@@ -1,9 +1,13 @@
-﻿const meow = require("meow");
-const parser = require("./src/grammar").parser;
-const fs = require("fs");
+﻿import * as fs from "fs";
+import * as path from "path";
+import * as grammar from "./src/grammar";
+import * as generator from "./src/generator";
 
-// TODO: Replace meow with commander: https://github.com/tj/commander.js
-const cli = meow(`
+function main() {
+    const meow = require("meow");
+
+    // TODO: Replace meow with commander: https://github.com/tj/commander.js
+    const cli = meow(`
   Usage
     $ fbagen <files>
 
@@ -14,24 +18,39 @@ const cli = meow(`
   Examples
     $ fbagen -o GeneratedCode -n Schema.fbs
 `, {
-        alias: {
-            o: 'output-path',
-            n: 'csharp',
-        },
-        string: ["output-path"],
-        boolean: ["csharp"],
-    });
+            alias: {
+                o: 'output-path',
+                n: 'csharp',
+            },
+            string: ["output-path"],
+            boolean: ["csharp"],
+        });
 
-if (cli.input.length > 0) {
-    for (let filePath of cli.input) {
-        console.log(`Read file from '${filePath}'`);
-        let file = fs.readFileSync(filePath, "utf8");
+    if (cli.input.length > 0) {
+        for (let filePath of cli.input) {
+            let schema = grammar.Grammar.parse(filePath);
 
-        console.log("Parse ast");
-        let ast = parser.parse(file);
-        console.log(JSON.stringify(ast));
+            let gens = [];
+            if (cli.flags.csharp) {
+                gens.push(new generator.Generators.CSharpGenerator(schema));
+            }
+
+            if (gens.length == 0)
+                throw new Error("No generator is specified");
+
+            for (let gen of gens) {
+                let codeFileName = path.basename(filePath, ".fbs") + gen.ext();
+                console.log("filename: " + codeFileName);
+                let codeFilePath = path.join(cli.flags.outputPath, codeFileName);
+                let code = gen.generate();
+
+                fs.writeFileSync(codeFilePath, code, { encoding: "utf8", flag: 'w' });
+            }
+        }
+    }
+    else {
+        console.info(cli.help);
     }
 }
-else {
-    console.info(cli.help);
-}
+
+main();

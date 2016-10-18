@@ -65,3 +65,4 @@ bld/
 
 # NTVS plugin
 .ntvs_analysis.dat
+.ntvs_analysis.dat.tmp

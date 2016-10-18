@@ -51,24 +51,24 @@ schema
     ;
 
 statement_list
-    : statement_list statement                                  { $$ = { type: 'statement_list', args: $1.args.concat($2) }; }
-    | statement                                                 { $$ = { type: 'statement_list', args: [$1] }; }
+    : statement_list statement                                  { $$ = { type: 'statement_list', statements: $1.statements.concat($2) }; }
+    | statement                                                 { $$ = { type: 'statement_list', statements: [$1] }; }
     ;
 
 statement
-    : namespace_decl ';'                                        { $$ = { type: 'statement', args: [$1] }; }
-    | attribute_decl ';'                                        { $$ = { type: 'statement', args: [$1] }; }
-    | enum_decl                                                 { $$ = { type: 'statement', args: [$1] }; }
-    | union_decl                                                { $$ = { type: 'statement', args: [$1] }; }
-    | struct_decl                                               { $$ = { type: 'statement', args: [$1] }; }
-    | table_decl                                                { $$ = { type: 'statement', args: [$1] }; }
-    | root_type_decl ';'                                        { $$ = { type: 'statement', args: [$1] }; }
-    | file_identifier_decl ';'                                  { $$ = { type: 'statement', args: [$1] }; }
-    | file_extension_decl ';'                                   { $$ = { type: 'statement', args: [$1] }; }
+    : namespace_decl ';'                                        { $$ = $1; }
+    | attribute_decl ';'                                        { $$ = $1; }
+    | enum_decl                                                 { $$ = $1; }
+    | union_decl                                                { $$ = $1; }
+    | struct_decl                                               { $$ = $1; }
+    | table_decl                                                { $$ = $1; }
+    | root_type_decl ';'                                        { $$ = $1; }
+    | file_identifier_decl ';'                                  { $$ = $1; }
+    | file_extension_decl ';'                                   { $$ = $1; }
     ;
 
 namespace_decl
-    : NS namespace_symbol                                       { $$ = { type: 'namespace_decl', args: [$2] }; }
+    : NS namespace_symbol                                       { $$ = { type: 'namespace_decl', namespace: [$2] }; }
     ;
 
 namespace_symbol
