@@ -7,6 +7,6 @@ obj
 tmp
 .editorconfig
 .gitattributes
-.ntvs_analysis.data
+.ntvs_analysis.dat
 *.njsproj
 *.sln
