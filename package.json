@@ -1,6 +1,6 @@
 {
   "name": "fbagen",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Generate object-based C# accessor code from FlatBuffer schema",
   "main": "index.js",
   "bin": "index.js",
