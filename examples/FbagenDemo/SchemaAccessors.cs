@@ -61,7 +61,7 @@ namespace MyGame.Schema.Serialization
 {
     public class Vec3Serializer : Serializer<MyGame.Schema.Mutable.Vec3, Vec3>
     {
-        public static readonly Vec3Serializer Instance = SerializerSet.Instance.CreateSerializer<Vec3Serializer, MyGame.Schema.Mutable.Vec3, Vec3>();
+        public static readonly Vec3Serializer Instance = new Vec3Serializer();
 
         public override Offset<Vec3> Serialize(FlatBufferBuilder fbb, MyGame.Schema.Mutable.Vec3 obj)
         {
@@ -84,7 +84,7 @@ namespace MyGame.Schema.Serialization
 
     public class MonsterSerializer : Serializer<MyGame.Schema.Mutable.Monster, Monster>
     {
-        public static readonly MonsterSerializer Instance = SerializerSet.Instance.CreateSerializer<MonsterSerializer, MyGame.Schema.Mutable.Monster, Monster>();
+        public static readonly MonsterSerializer Instance = new MonsterSerializer();
 
         public override Offset<Monster> Serialize(FlatBufferBuilder fbb, MyGame.Schema.Mutable.Monster obj)
         {
@@ -123,7 +123,7 @@ namespace MyGame.Schema.Serialization
 
     public class WeaponSerializer : Serializer<MyGame.Schema.Mutable.Weapon, Weapon>
     {
-        public static readonly WeaponSerializer Instance = SerializerSet.Instance.CreateSerializer<WeaponSerializer, MyGame.Schema.Mutable.Weapon, Weapon>();
+        public static readonly WeaponSerializer Instance = new WeaponSerializer();
 
         public override Offset<Weapon> Serialize(FlatBufferBuilder fbb, MyGame.Schema.Mutable.Weapon obj)
         {
@@ -149,7 +149,7 @@ namespace MyGame.Schema.Serialization
 
     public class PickupSerializer : Serializer<MyGame.Schema.Mutable.Pickup, Pickup>
     {
-        public static readonly PickupSerializer Instance = SerializerSet.Instance.CreateSerializer<PickupSerializer, MyGame.Schema.Mutable.Pickup, Pickup>();
+        public static readonly PickupSerializer Instance = new PickupSerializer();
 
         public override Offset<Pickup> Serialize(FlatBufferBuilder fbb, MyGame.Schema.Mutable.Pickup obj)
         {
@@ -173,7 +173,7 @@ namespace MyGame.Schema.Serialization
 
     public class SceneSerializer : Serializer<MyGame.Schema.Mutable.Scene, Scene>
     {
-        public static readonly SceneSerializer Instance = SerializerSet.Instance.CreateSerializer<SceneSerializer, MyGame.Schema.Mutable.Scene, Scene>();
+        public static readonly SceneSerializer Instance = new SceneSerializer();
 
         public override Offset<Scene> Serialize(FlatBufferBuilder fbb, MyGame.Schema.Mutable.Scene obj)
         {

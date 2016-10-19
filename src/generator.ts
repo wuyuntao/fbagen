@@ -249,7 +249,7 @@ namespace ${this.namespace}.${suffix}
             return `
     public class ${serializerName} : Serializer<${accessorName}, ${typeName}>
     {
-        public static readonly ${serializerName} Instance = SerializerSet.Instance.CreateSerializer<${serializerName}, ${accessorName}, ${typeName}>();
+        public static readonly ${serializerName} Instance = new ${serializerName}();
 `;
         }
 
