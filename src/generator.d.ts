@@ -52,19 +52,21 @@ export declare namespace Generators {
     class CSharpGenerator extends Generator {
         constructor(schema: StatementList);
         generate(): string;
-        beginNamespace(): string;
+        beginNamespace(suffix: string): string;
         endNamespace(): string;
-        addType(type: TypeStatement): string;
+        addAccessor(type: TypeStatement, isMutable: boolean): string;
         beginType(typeName: string, isStruct: boolean, isMutable: boolean): string;
         endType(): string;
         addTypeField(field: FieldStatement, isStruct: boolean, isMutable: boolean): string;
+        addSerializer(type: TypeStatement): string;
         beginSerializer(typeName: string, isMutable: boolean): string;
         addSerializeMethod(type: TypeStatement, isMutable: boolean): string;
         addGetRootAsMethod(type: TypeStatement, isMutable: boolean): string;
         addDeserializeMethod(type: TypeStatement, isMutable: boolean): string;
         endSerializer(): string;
-        getAccessorName(typeName: string, isMutable: boolean): string;
-        getSerializerName(typeName: string): string;
+        getTypeName(typeName: string, withNamespace: boolean): string;
+        getAccessorName(typeName: string, isMutable: boolean, withNamespace: boolean): string;
+        getSerializerName(typeName: string, withNamespace: boolean): string;
         isDeprecatedField(field: FieldStatement): boolean;
         isStruct(type: TypeStatement): boolean;
         ext(): string;
