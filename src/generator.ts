@@ -115,7 +115,7 @@
     }
 
     export class CSharpGenerator extends Generator {
-        constructor(schema : StatementList) {
+        constructor(schema: StatementList) {
             super(schema)
         }
 
@@ -232,9 +232,9 @@ namespace ${this.namespace}
             let accessorName = this.getAccessorName(typeName, isMutable);
             let serializerName = this.getSerializerName(typeName);
             return `
-    public class ${serializerName} : FlatBufferSerializer<${accessorName}, ${typeName}>
+    public class ${serializerName} : Serializer<${accessorName}, ${typeName}>
     {
-        public static readonly ${serializerName} Instance = new ${serializerName}();
+        public static readonly ${serializerName} Instance = SerializerSet.Instance.CreateSerializer<${serializerName}, ${accessorName}, ${typeName}>();
 `;
         }
 
@@ -244,10 +244,9 @@ namespace ${this.namespace}
         public override Offset<${type.name}> Serialize(FlatBufferBuilder fbb, ${accessorName} obj)
         {
 `;
-            if (this.isStruct(type))
-            {
+            if (this.isStruct(type)) {
                 code += `            return ${type.name}.Create${type.name}(fbb`;
-                for(let field of type.fields) {
+                for (let field of type.fields) {
                     let fieldName = upperCamelCase(field.name);
                     code += `, obj.${fieldName}`;
                 }
@@ -256,13 +255,13 @@ namespace ${this.namespace}
                 code += `            ${type.name}.Start${type.name}(fbb);
 `;
 
-                for(let field of type.fields) {
-                    if(this.isDeprecatedField(field))
+                for (let field of type.fields) {
+                    if (this.isDeprecatedField(field))
                         continue;
 
                     let fieldName = upperCamelCase(field.name);
 
-                    if(field.fieldType.isArray) {
+                    if (field.fieldType.isArray) {
                         if (field.fieldType.name == "string") {
                             code += `            ${type.name}.Add${fieldName}(fbb, ${type.name}.Create${fieldName}Vector(fbb, SerializeString(fbb, obj.${fieldName})));
 `;
@@ -334,23 +333,23 @@ namespace ${this.namespace}
             code += `            var accessor = new ${accessorName}();
 `;
 
-            for(let field of type.fields) {
+            for (let field of type.fields) {
                 if (this.isDeprecatedField(field)) {
                     continue;
                 }
 
                 let fieldName = upperCamelCase(field.name);
                 if (field.fieldType.isArray) {
-                     if(field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
-                         code += `            accessor.${fieldName} = DeserializeScalar(obj.${fieldName}Length, obj.${fieldName});
+                    if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
+                        code += `            accessor.${fieldName} = DeserializeScalar(obj.${fieldName}Length, obj.${fieldName});
 `;
-                     } else {
-                         code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name)}.Instance.Deserialize(obj.${fieldName}Length, obj.${fieldName});
+                    } else {
+                        code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name)}.Instance.Deserialize(obj.${fieldName}Length, obj.${fieldName});
 `;
-                     }
+                    }
                 }
                 else {
-                    if(field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
+                    if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
                         code += `            accessor.${fieldName} = obj.${fieldName};
 `;
                     } else if (this.isType(field.fieldType.name)) {
@@ -376,11 +375,11 @@ namespace ${this.namespace}
         }
 
         getAccessorName(typeName: string, isMutable: boolean): string {
-             return `${isMutable ? 'Mutable': 'Immutable'}${typeName}`;
+            return `${isMutable ? 'Mutable' : 'Immutable'}${typeName}`;
         }
 
         getSerializerName(typeName: string): string {
-             return `${typeName}Serializer`;
+            return `${typeName}Serializer`;
         }
 
         isDeprecatedField(field: FieldStatement): boolean {
