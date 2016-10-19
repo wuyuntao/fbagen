@@ -72,7 +72,7 @@
                     let nss = <NamespaceStatement>statement;
                     if (this.namespace == null) {
                         this.namespace = nss.namespace;
-                        console.info(`Found namespace ${nss.namespace}`);
+                        //console.info(`Found namespace ${nss.namespace}`);
                     }
                     else
                         throw new GeneratorError(`Duplicate namespace`);
@@ -150,7 +150,7 @@ namespace ${this.namespace}
         }
 
         addType(type: TypeStatement): string {
-            console.log(JSON.stringify(type));
+            //console.log(JSON.stringify(type));
 
             let isStruct = this.isStruct(type);
             let code = ``;
@@ -208,8 +208,9 @@ namespace ${this.namespace}
                 fieldTypeName = fieldType.name;
             }
             else {
-                console.warn(`Not implemented yet: ${JSON.stringify(fieldType)}`);
-                return '';
+                return `
+        // ${fieldType.name} ${field.name} is not implemented yet
+`;
             }
 
             if (fieldType.isArray)
@@ -262,13 +263,32 @@ namespace ${this.namespace}
                     let fieldName = upperCamelCase(field.name);
 
                     if(field.fieldType.isArray) {
+                        if (field.fieldType.name == "string") {
+                            code += `            ${type.name}.Add${fieldName}(fbb, ${type.name}.Create${fieldName}Vector(fbb, SerializeString(fbb, obj.${fieldName})));
+`;
+                        } else if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
+                            code += `            ${type.name}.Add${fieldName}(fbb, ${type.name}.Create${fieldName}Vector(fbb, obj.${fieldName}));
+`;
+                        } else if (this.isType(field.fieldType.name)) {
+                            code += `            ${type.name}.Add${fieldName}(fbb, ${type.name}.Create${fieldName}Vector(fbb, ${field.fieldType.name}Serializer.Instance.Serialize(fbb, obj.${fieldName})));
+`;
+                        } else {
+                            code += `            // ${field.fieldType.name} ${fieldName} is not implemented yet
+`;
+                        }
                     } else {
                         if (field.fieldType.name == "string") {
                             code += `            if (!string.IsNullOrEmpty(obj.${fieldName}))
-                     ${type.name}.Add${fieldName}(fbb, fbb.CreateString(obj.${fieldName}));
+                 ${type.name}.Add${fieldName}(fbb, fbb.CreateString(obj.${fieldName}));
 `;
-                    } else if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
-                        code += `            ${type.name}.Add${fieldName}(fbb, obj.${fieldName});
+                        } else if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
+                            code += `            ${type.name}.Add${fieldName}(fbb, obj.${fieldName});
+`;
+                        } else if (this.isType(field.fieldType.name)) {
+                            code += `            ${type.name}.Add${fieldName}(fbb, ${field.fieldType.name}Serializer.Instance.Serialize(fbb, obj.${fieldName}));
+`;
+                        } else {
+                            code += `            // ${field.fieldType.name} ${fieldName} is not implemented yet
 `;
                         }
                     }
@@ -277,6 +297,7 @@ namespace ${this.namespace}
                 code += `            return ${type.name}.End${type.name}(fbb);
 `;
             }
+
 
             code += `
         }
@@ -324,7 +345,7 @@ namespace ${this.namespace}
                          code += `            accessor.${fieldName} = DeserializeScalar(obj.${fieldName}Length, obj.${fieldName});
 `;
                      } else {
-                         code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name)}.Deserialize(obj.${fieldName}Length, obj.${fieldName});
+                         code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name)}.Instance.Deserialize(obj.${fieldName}Length, obj.${fieldName});
 `;
                      }
                 }
@@ -336,7 +357,8 @@ namespace ${this.namespace}
                         code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name)}.Instance.Deserialize(obj.${fieldName});
 `;
                     } else {
-                        console.warn(`Not implemented yet: ${JSON.stringify(field)}`);
+                        code += `            // ${field.fieldType.name} ${fieldName} is not implemented yet
+`;
                     }
                 }
             }

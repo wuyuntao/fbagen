@@ -59,6 +59,8 @@ namespace MyGame.Schema
 
         public Color Color { get; set; }
 
+        // Any test is not implemented yet
+
     }
 
     public class MonsterSerializer : FlatBufferSerializer<MutableMonster, Monster>
@@ -69,11 +71,14 @@ namespace MyGame.Schema
         {
             Monster.StartMonster(fbb);
             Monster.AddId(fbb, obj.Id);
+            Monster.AddPos(fbb, Vec3Serializer.Instance.Serialize(fbb, obj.Pos));
             Monster.AddMana(fbb, obj.Mana);
             Monster.AddHp(fbb, obj.Hp);
             if (!string.IsNullOrEmpty(obj.Name))
-                     Monster.AddName(fbb, fbb.CreateString(obj.Name));
+                 Monster.AddName(fbb, fbb.CreateString(obj.Name));
+            Monster.AddInventory(fbb, Monster.CreateInventoryVector(fbb, obj.Inventory));
             Monster.AddColor(fbb, obj.Color);
+            // Any Test is not implemented yet
             return Monster.EndMonster(fbb);
 
         }
@@ -93,6 +98,7 @@ namespace MyGame.Schema
             accessor.Name = obj.Name;
             accessor.Inventory = DeserializeScalar(obj.InventoryLength, obj.Inventory);
             accessor.Color = obj.Color;
+            // Any Test is not implemented yet
             return accessor;
         }
 
@@ -102,6 +108,8 @@ namespace MyGame.Schema
     {
 
         public uint Id { get; set; }
+
+        public string[] Tags { get; set; }
 
     }
 
@@ -113,6 +121,7 @@ namespace MyGame.Schema
         {
             Weapon.StartWeapon(fbb);
             Weapon.AddId(fbb, obj.Id);
+            Weapon.AddTags(fbb, Weapon.CreateTagsVector(fbb, SerializeString(fbb, obj.Tags)));
             return Weapon.EndWeapon(fbb);
 
         }
@@ -126,6 +135,7 @@ namespace MyGame.Schema
         {
             var accessor = new MutableWeapon();
             accessor.Id = obj.Id;
+            accessor.Tags = DeserializeScalar(obj.TagsLength, obj.Tags);
             return accessor;
         }
 
@@ -159,6 +169,39 @@ namespace MyGame.Schema
         {
             var accessor = new MutablePickup();
             accessor.Id = obj.Id;
+            return accessor;
+        }
+
+    }
+
+    public class MutableScene
+    {
+
+        public MutableMonster[] Monsters { get; set; }
+
+    }
+
+    public class SceneSerializer : FlatBufferSerializer<MutableScene, Scene>
+    {
+        public static readonly SceneSerializer Instance = new SceneSerializer();
+
+        public override Offset<Scene> Serialize(FlatBufferBuilder fbb, MutableScene obj)
+        {
+            Scene.StartScene(fbb);
+            Scene.AddMonsters(fbb, Scene.CreateMonstersVector(fbb, MonsterSerializer.Instance.Serialize(fbb, obj.Monsters)));
+            return Scene.EndScene(fbb);
+
+        }
+
+        protected override Scene GetRootAs(ByteBuffer buffer)
+        {
+            return Scene.GetRootAsScene(buffer);
+        }
+
+        public override MutableScene Deserialize(Scene obj)
+        {
+            var accessor = new MutableScene();
+            accessor.Monsters = MonsterSerializer.Instance.Deserialize(obj.MonstersLength, obj.Monsters);
             return accessor;
         }
 

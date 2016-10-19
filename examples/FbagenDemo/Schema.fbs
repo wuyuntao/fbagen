@@ -28,13 +28,18 @@ table Monster {
 
 table Weapon {
   id:uint;
+  tags:[string];
 }
 
 table Pickup {
   id:uint;
 }
 
-root_type Monster;
+table Scene {
+  monsters:[Monster];
+}
+
+root_type Scene;
 
 file_identifier "MYFI";
 file_extension "ext";

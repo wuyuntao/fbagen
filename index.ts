@@ -40,7 +40,7 @@ function main() {
 
             for (let gen of gens) {
                 let codeFileName = `${path.basename(filePath, ".fbs")}Accessors${gen.ext()}`;
-                console.log("filename: " + codeFileName);
+                // console.log("filename: " + codeFileName);
                 let codeFilePath = path.join(cli.flags.outputPath, codeFileName);
                 let code = gen.generate();
 

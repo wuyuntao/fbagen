@@ -47,7 +47,6 @@ public struct Monster : IFlatbufferObject
   public ByteBuffer ByteBuffer { get { return __p.bb; } }
   public static Monster GetRootAsMonster(ByteBuffer _bb) { return GetRootAsMonster(_bb, new Monster()); }
   public static Monster GetRootAsMonster(ByteBuffer _bb, Monster obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
-  public static bool MonsterBufferHasIdentifier(ByteBuffer _bb) { return Table.__has_identifier(_bb, "MYFI"); }
   public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
   public Monster __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
@@ -80,7 +79,6 @@ public struct Monster : IFlatbufferObject
     int o = builder.EndObject();
     return new Offset<Monster>(o);
   }
-  public static void FinishMonsterBuffer(FlatBufferBuilder builder, Offset<Monster> offset) { builder.Finish(offset.Value, "MYFI"); }
 };
 
 public struct Weapon : IFlatbufferObject
@@ -93,16 +91,23 @@ public struct Weapon : IFlatbufferObject
   public Weapon __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
 
   public uint Id { get { int o = __p.__offset(4); return o != 0 ? __p.bb.GetUint(o + __p.bb_pos) : (uint)0; } }
+  public string Tags(int j) { int o = __p.__offset(6); return o != 0 ? __p.__string(__p.__vector(o) + j * 4) : null; }
+  public int TagsLength { get { int o = __p.__offset(6); return o != 0 ? __p.__vector_len(o) : 0; } }
 
   public static Offset<Weapon> CreateWeapon(FlatBufferBuilder builder,
-      uint id = 0) {
-    builder.StartObject(1);
+      uint id = 0,
+      VectorOffset tagsOffset = default(VectorOffset)) {
+    builder.StartObject(2);
+    Weapon.AddTags(builder, tagsOffset);
     Weapon.AddId(builder, id);
     return Weapon.EndWeapon(builder);
   }
 
-  public static void StartWeapon(FlatBufferBuilder builder) { builder.StartObject(1); }
+  public static void StartWeapon(FlatBufferBuilder builder) { builder.StartObject(2); }
   public static void AddId(FlatBufferBuilder builder, uint id) { builder.AddUint(0, id, 0); }
+  public static void AddTags(FlatBufferBuilder builder, VectorOffset tagsOffset) { builder.AddOffset(1, tagsOffset.Value, 0); }
+  public static VectorOffset CreateTagsVector(FlatBufferBuilder builder, StringOffset[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static void StartTagsVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
   public static Offset<Weapon> EndWeapon(FlatBufferBuilder builder) {
     int o = builder.EndObject();
     return new Offset<Weapon>(o);
@@ -133,6 +138,37 @@ public struct Pickup : IFlatbufferObject
     int o = builder.EndObject();
     return new Offset<Pickup>(o);
   }
+};
+
+public struct Scene : IFlatbufferObject
+{
+  private Table __p;
+  public ByteBuffer ByteBuffer { get { return __p.bb; } }
+  public static Scene GetRootAsScene(ByteBuffer _bb) { return GetRootAsScene(_bb, new Scene()); }
+  public static Scene GetRootAsScene(ByteBuffer _bb, Scene obj) { return (obj.__assign(_bb.GetInt(_bb.Position) + _bb.Position, _bb)); }
+  public static bool SceneBufferHasIdentifier(ByteBuffer _bb) { return Table.__has_identifier(_bb, "MYFI"); }
+  public void __init(int _i, ByteBuffer _bb) { __p.bb_pos = _i; __p.bb = _bb; }
+  public Scene __assign(int _i, ByteBuffer _bb) { __init(_i, _bb); return this; }
+
+  public Monster? Monsters(int j) { int o = __p.__offset(4); return o != 0 ? (Monster?)(new Monster()).__assign(__p.__indirect(__p.__vector(o) + j * 4), __p.bb) : null; }
+  public int MonstersLength { get { int o = __p.__offset(4); return o != 0 ? __p.__vector_len(o) : 0; } }
+
+  public static Offset<Scene> CreateScene(FlatBufferBuilder builder,
+      VectorOffset monstersOffset = default(VectorOffset)) {
+    builder.StartObject(1);
+    Scene.AddMonsters(builder, monstersOffset);
+    return Scene.EndScene(builder);
+  }
+
+  public static void StartScene(FlatBufferBuilder builder) { builder.StartObject(1); }
+  public static void AddMonsters(FlatBufferBuilder builder, VectorOffset monstersOffset) { builder.AddOffset(0, monstersOffset.Value, 0); }
+  public static VectorOffset CreateMonstersVector(FlatBufferBuilder builder, Offset<Monster>[] data) { builder.StartVector(4, data.Length, 4); for (int i = data.Length - 1; i >= 0; i--) builder.AddOffset(data[i].Value); return builder.EndVector(); }
+  public static void StartMonstersVector(FlatBufferBuilder builder, int numElems) { builder.StartVector(4, numElems, 4); }
+  public static Offset<Scene> EndScene(FlatBufferBuilder builder) {
+    int o = builder.EndObject();
+    return new Offset<Scene>(o);
+  }
+  public static void FinishSceneBuffer(FlatBufferBuilder builder, Offset<Scene> offset) { builder.Finish(offset.Value, "MYFI"); }
 };
 
 
