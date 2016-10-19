@@ -2,44 +2,44 @@
 
     const upperCamelCase = require('uppercamelcase');
 
-    class GeneratorError extends Error {
+    export class GeneratorError extends Error {
     }
 
-    interface StatementList {
+    export interface StatementList {
         type: string;
         statements: Statement[];
     }
 
-    interface Statement {
+    export interface Statement {
         type: string;
     }
 
-    interface NamespaceStatement extends Statement {
+    export interface NamespaceStatement extends Statement {
         namespace: string;
     }
 
-    interface TypeStatement extends Statement {
+    export interface TypeStatement extends Statement {
         name: string;
         fields: FieldStatement[];
     }
 
-    interface FieldStatement extends Statement {
+    export interface FieldStatement extends Statement {
         name: string;
         fieldType: FieldTypeStatement;
         attributes: AttributeStatement[];
     }
 
-    interface FieldTypeStatement extends Statement {
+    export interface FieldTypeStatement extends Statement {
         name: string;
         isScalar: boolean;
         isArray: boolean;
     }
 
-    interface EnumStatement extends Statement {
+    export interface EnumStatement extends Statement {
         name: string;
     }
 
-    interface AttributeStatement extends Statement {
+    export interface AttributeStatement extends Statement {
         name: string;
     }
 
@@ -115,7 +115,7 @@
     }
 
     export class CSharpGenerator extends Generator {
-        constructor(schema) {
+        constructor(schema : StatementList) {
             super(schema)
         }
 

@@ -1,7 +1,7 @@
 {
   "name": "fbagen",
   "version": "0.0.1",
-  "description": "Generate class-based C# accessor code from FlatBuffer schema",
+  "description": "Generate object-based C# accessor code from FlatBuffer schema",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

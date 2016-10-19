@@ -1,0 +1,12 @@
+.vs
+bin
+examples
+flatbuffers
+node_modules
+obj
+tmp
+.editorconfig
+.gitattributes
+.ntvs_analysis.data
+*.njsproj
+*.sln

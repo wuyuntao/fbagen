@@ -30,7 +30,7 @@ function main() {
         for (let filePath of cli.input) {
             let schema = grammar.Grammar.parse(filePath);
 
-            let gens = [];
+            let gens : generator.Generators.CSharpGenerator[] = [];
             if (cli.flags.csharp) {
                 gens.push(new generator.Generators.CSharpGenerator(schema));
             }
