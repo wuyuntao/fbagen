@@ -58,6 +58,9 @@ export declare namespace Generators {
         beginType(typeName: string, isStruct: boolean, isMutable: boolean): string;
         endType(): string;
         addTypeField(field: FieldStatement, isStruct: boolean, isMutable: boolean): string;
+        getFieldTypeName(field: FieldStatement): string;
+        isList(field: FieldStatement): boolean;
+        addAccessorConstructor(type: TypeStatement): string;
         addSerializer(type: TypeStatement): string;
         beginSerializer(typeName: string, isMutable: boolean): string;
         addSerializeMethod(type: TypeStatement, isMutable: boolean): string;

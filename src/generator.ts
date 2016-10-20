@@ -124,6 +124,8 @@
 using FlatBuffers;
 using FlatBuffers.Schema;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 `;
 
             code += this.beginNamespace("Mutable");
@@ -169,6 +171,8 @@ namespace ${this.namespace}.${suffix}
                 }
             }
 
+            code += this.addAccessorConstructor(type);
+
             code += this.endType();
 
             return code;
@@ -189,8 +193,28 @@ namespace ${this.namespace}.${suffix}
 
         addTypeField(field: FieldStatement, isStruct: boolean, isMutable: boolean): string {
             let fieldType = <FieldTypeStatement>field.fieldType;
+            let fieldTypeName = this.getFieldTypeName(field);
 
-            let fieldTypeName: string;
+            if (fieldTypeName == null) {
+                return `
+        // ${fieldType.name} ${field.name} is not implemented yet
+`;
+            }
+
+            let code = `
+        public ${fieldTypeName} ${upperCamelCase(field.name)}`;
+            if (isStruct)
+                code += `;
+`;
+            else
+                code += ` { get; private set; }
+`;
+            return code;
+        }
+
+        getFieldTypeName(field: FieldStatement): string {
+            let fieldType = <FieldTypeStatement>field.fieldType;
+            let fieldTypeName : string;
             if (fieldType.isScalar) {
                 // C# conversion: ubyte -> byte, byte -> sbyte
                 if (fieldType.name == "ubyte")
@@ -206,23 +230,63 @@ namespace ${this.namespace}.${suffix}
                 fieldTypeName = fieldType.name;
             }
             else {
-                return `
-        // ${fieldType.name} ${field.name} is not implemented yet
+                return null;
+            }
+
+            if (fieldType.isArray) {
+                if (field.attributes != null && this.isList(field)) {
+                    fieldTypeName = `List<${fieldTypeName}>`;
+                }
+                else {
+                    fieldTypeName += '[]';
+                }
+            }
+
+            return fieldTypeName;
+        }
+
+        isList(field: FieldStatement): boolean {
+            return field.fieldType.isArray && field.attributes != null && field.attributes.findIndex( a => a.name == "use_list") >= 0;
+        }
+
+        addAccessorConstructor(type: TypeStatement): string {
+            let code = `
+        public ${type.name}(`;
+
+            let isFirst = true;
+            for(let field of type.fields) {
+                if (this.isDeprecatedField(field))
+                    continue;
+
+                let fieldTypeName = this.getFieldTypeName(field);
+                if (fieldTypeName == null)
+                    continue;
+
+                if(isFirst) {
+                    isFirst = false;
+                } else {
+                    code += `, `;
+                }
+
+                code += `${fieldTypeName} ${field.name}`;
+            }
+
+            code += `)
+        {
+`;
+            for(let field of type.fields) {
+                if (this.isDeprecatedField(field))
+                    continue;
+
+                let fieldTypeName = this.getFieldTypeName(field);
+                if (fieldTypeName == null)
+                    continue;
+
+                code += `            ${upperCamelCase(field.name)} = ${field.name};
 `;
             }
 
-            if (fieldType.isArray)
-                fieldTypeName += '[]';
-
-            let code = `
-        public ${fieldTypeName} ${upperCamelCase(field.name)}`;
-            if (isStruct)
-                code += `;
-`;
-            else
-                code += ` { get; set; }
-`;
-
+            code += `        }`;
             return code;
         }
 
@@ -344,41 +408,49 @@ namespace ${this.namespace}.${suffix}
         {
 `;
 
-            code += `            var accessor = new ${accessorName}();
-`;
+            code += `            return new ${accessorName}(`;
 
+            let isFirst = true;
             for (let field of type.fields) {
                 if (this.isDeprecatedField(field)) {
                     continue;
                 }
 
+                if (this.getFieldTypeName(field) == null)
+                    continue;
+
+                if(isFirst) {
+                    isFirst = false;
+                } else {
+                    code += `, `;
+                }
+
                 let fieldName = upperCamelCase(field.name);
                 if (field.fieldType.isArray) {
                     if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
-                        code += `            accessor.${fieldName} = DeserializeScalar(obj.${fieldName}Length, obj.${fieldName});
-`;
+                        code += `DeserializeScalar(obj.${fieldName}Length, obj.${fieldName})`;
                     } else {
-                        code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name, false)}.Instance.Deserialize(obj.${fieldName}Length, obj.${fieldName});
-`;
+                        code += `${this.getSerializerName(field.fieldType.name, false)}.Instance.Deserialize(obj.${fieldName}Length, obj.${fieldName})`;
+                    }
+
+                    if(this.isList(field)) {
+                        code += `.ToList()`;
                     }
                 }
                 else {
                     if (field.fieldType.isScalar || this.isEnum(field.fieldType.name)) {
-                        code += `            accessor.${fieldName} = obj.${fieldName};
-`;
+                        code += `obj.${fieldName}`;
                     } else if (this.isType(field.fieldType.name)) {
-                        code += `            accessor.${fieldName} = ${this.getSerializerName(field.fieldType.name, false)}.Instance.Deserialize(obj.${fieldName});
-`;
-                    } else {
-                        code += `            // ${field.fieldType.name} ${fieldName} is not implemented yet
-`;
+                        code += `${this.getSerializerName(field.fieldType.name, false)}.Instance.Deserialize(obj.${fieldName})`;
                     }
                 }
             }
 
-            code += `            return accessor;
+
+            code += `);
         }
 `;
+
             return code;
         }
 

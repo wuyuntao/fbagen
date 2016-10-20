@@ -2,6 +2,8 @@
 using FlatBuffers;
 using FlatBuffers.Schema;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MyGame.Schema.Mutable
 {
@@ -13,46 +15,75 @@ namespace MyGame.Schema.Mutable
 
         public float Z;
 
+        public Vec3(float x, float y, float z)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+        }
     }
 
     public partial class Monster
     {
-        public uint Id { get; set; }
+        public uint Id { get; private set; }
 
-        public Vec3 Pos { get; set; }
+        public Vec3 Pos { get; private set; }
 
-        public short Mana { get; set; }
+        public short Mana { get; private set; }
 
-        public short Hp { get; set; }
+        public short Hp { get; private set; }
 
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
-        public byte[] Inventory { get; set; }
+        public byte[] Inventory { get; private set; }
 
-        public Color Color { get; set; }
+        public Color Color { get; private set; }
 
         // Any test is not implemented yet
 
+        public Monster(uint id, Vec3 pos, short mana, short hp, string name, byte[] inventory, Color color)
+        {
+            Id = id;
+            Pos = pos;
+            Mana = mana;
+            Hp = hp;
+            Name = name;
+            Inventory = inventory;
+            Color = color;
+        }
     }
 
     public partial class Weapon
     {
-        public uint Id { get; set; }
+        public uint Id { get; private set; }
 
-        public string[] Tags { get; set; }
+        public string[] Tags { get; private set; }
 
+        public Weapon(uint id, string[] tags)
+        {
+            Id = id;
+            Tags = tags;
+        }
     }
 
     public partial class Pickup
     {
-        public uint Id { get; set; }
+        public uint Id { get; private set; }
 
+        public Pickup(uint id)
+        {
+            Id = id;
+        }
     }
 
     public partial class Scene
     {
-        public Monster[] Monsters { get; set; }
+        public List<Monster> Monsters { get; private set; }
 
+        public Scene(List<Monster> monsters)
+        {
+            Monsters = monsters;
+        }
     }
 
 }
@@ -74,11 +105,7 @@ namespace MyGame.Schema.Serialization
 
         public override MyGame.Schema.Mutable.Vec3 Deserialize(Vec3 obj)
         {
-            var accessor = new MyGame.Schema.Mutable.Vec3();
-            accessor.X = obj.X;
-            accessor.Y = obj.Y;
-            accessor.Z = obj.Z;
-            return accessor;
+            return new MyGame.Schema.Mutable.Vec3(obj.X, obj.Y, obj.Z);
         }
     }
 
@@ -108,16 +135,7 @@ namespace MyGame.Schema.Serialization
 
         public override MyGame.Schema.Mutable.Monster Deserialize(Monster obj)
         {
-            var accessor = new MyGame.Schema.Mutable.Monster();
-            accessor.Id = obj.Id;
-            accessor.Pos = Vec3Serializer.Instance.Deserialize(obj.Pos);
-            accessor.Mana = obj.Mana;
-            accessor.Hp = obj.Hp;
-            accessor.Name = obj.Name;
-            accessor.Inventory = DeserializeScalar(obj.InventoryLength, obj.Inventory);
-            accessor.Color = obj.Color;
-            // Any Test is not implemented yet
-            return accessor;
+            return new MyGame.Schema.Mutable.Monster(obj.Id, Vec3Serializer.Instance.Deserialize(obj.Pos), obj.Mana, obj.Hp, obj.Name, DeserializeScalar(obj.InventoryLength, obj.Inventory), obj.Color);
         }
     }
 
@@ -140,10 +158,7 @@ namespace MyGame.Schema.Serialization
 
         public override MyGame.Schema.Mutable.Weapon Deserialize(Weapon obj)
         {
-            var accessor = new MyGame.Schema.Mutable.Weapon();
-            accessor.Id = obj.Id;
-            accessor.Tags = DeserializeScalar(obj.TagsLength, obj.Tags);
-            return accessor;
+            return new MyGame.Schema.Mutable.Weapon(obj.Id, DeserializeScalar(obj.TagsLength, obj.Tags));
         }
     }
 
@@ -165,9 +180,7 @@ namespace MyGame.Schema.Serialization
 
         public override MyGame.Schema.Mutable.Pickup Deserialize(Pickup obj)
         {
-            var accessor = new MyGame.Schema.Mutable.Pickup();
-            accessor.Id = obj.Id;
-            return accessor;
+            return new MyGame.Schema.Mutable.Pickup(obj.Id);
         }
     }
 
@@ -189,9 +202,7 @@ namespace MyGame.Schema.Serialization
 
         public override MyGame.Schema.Mutable.Scene Deserialize(Scene obj)
         {
-            var accessor = new MyGame.Schema.Mutable.Scene();
-            accessor.Monsters = MonsterSerializer.Instance.Deserialize(obj.MonstersLength, obj.Monsters);
-            return accessor;
+            return new MyGame.Schema.Mutable.Scene(MonsterSerializer.Instance.Deserialize(obj.MonstersLength, obj.Monsters).ToList());
         }
     }
 

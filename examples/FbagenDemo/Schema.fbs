@@ -3,6 +3,7 @@
 namespace MyGame.Schema;
 
 attribute "priority";
+attribute "use_list";
 
 enum Color : byte { Red = 1, Green, Blue }
 
@@ -36,7 +37,7 @@ table Pickup {
 }
 
 table Scene {
-  monsters:[Monster];
+  monsters:[Monster] (use_list);
 }
 
 root_type Scene;
